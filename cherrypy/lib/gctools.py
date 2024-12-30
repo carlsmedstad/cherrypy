@@ -37,7 +37,7 @@ class ReferrerTree(object):
         refs = gc.get_referrers(obj)
         self.ignore.append(refs)
         if len(refs) > self.maxparents:
-            return [("[%s referrers]" % len(refs), [])]
+            return [('[%s referrers]' % len(refs), [])]
 
         try:
             ascendcode = self.ascend.__code__
@@ -59,7 +59,7 @@ class ReferrerTree(object):
         """Return s, restricted to a sane length."""
         if len(s) > (self.peek_length + 3):
             half = self.peek_length // 2
-            return s[:half] + "..." + s[-half:]
+            return s[:half] + '...' + s[-half:]
         else:
             return s
 
@@ -74,10 +74,10 @@ class ReferrerTree(object):
 
         if isinstance(obj, dict):
             return (
-                "{"
-                + ", ".join(
+                '{'
+                + ', '.join(
                     [
-                        "%s: %s"
+                        '%s: %s'
                         % (
                             self._format(k, descend=False),
                             self._format(v, descend=False),
@@ -85,25 +85,25 @@ class ReferrerTree(object):
                         for k, v in obj.items()
                     ]
                 )
-                + "}"
+                + '}'
             )
         elif isinstance(obj, list):
             return (
-                "["
-                + ", ".join([self._format(item, descend=False) for item in obj])
-                + "]"
+                '['
+                + ', '.join([self._format(item, descend=False) for item in obj])
+                + ']'
             )
         elif isinstance(obj, tuple):
             return (
-                "("
-                + ", ".join([self._format(item, descend=False) for item in obj])
-                + ")"
+                '('
+                + ', '.join([self._format(item, descend=False) for item in obj])
+                + ')'
             )
 
         r = self.peek(repr(obj))
         if isinstance(obj, (str, int, float)):
             return r
-        return "%s: %s" % (type(obj), r)
+        return '%s: %s' % (type(obj), r)
 
     def format(self, tree):
         """Return a list of string reprs from a nested list of referrers."""
@@ -111,7 +111,7 @@ class ReferrerTree(object):
 
         def ascend(branch, depth=1):
             for parent, grandparents in branch:
-                output.append(("    " * depth) + self._format(parent))
+                output.append(('    ' * depth) + self._format(parent))
                 if grandparents:
                     ascend(grandparents, depth + 1)
 
@@ -147,14 +147,14 @@ request_counter.subscribe()
 def get_context(obj):
     """Compute object's runtime context information."""
     if isinstance(obj, _cprequest.Request):
-        return "path=%s;stage=%s" % (obj.path_info, obj.stage)
+        return 'path=%s;stage=%s' % (obj.path_info, obj.stage)
     elif isinstance(obj, _cprequest.Response):
-        return "status=%s" % obj.status
+        return 'status=%s' % obj.status
     elif isinstance(obj, _cpwsgi.AppResponse):
-        return "PATH_INFO=%s" % obj.environ.get("PATH_INFO", "")
-    elif hasattr(obj, "tb_lineno"):
-        return "tb_lineno=%s" % obj.tb_lineno
-    return ""
+        return 'PATH_INFO=%s' % obj.environ.get('PATH_INFO', '')
+    elif hasattr(obj, 'tb_lineno'):
+        return 'tb_lineno=%s' % obj.tb_lineno
+    return ''
 
 
 class GCRoot(object):
@@ -165,33 +165,33 @@ class GCRoot(object):
             _cprequest.Request,
             2,
             2,
-            "Should be 1 in this request thread and 1 in the main thread.",
+            'Should be 1 in this request thread and 1 in the main thread.',
         ),
         (
             _cprequest.Response,
             2,
             2,
-            "Should be 1 in this request thread and 1 in the main thread.",
+            'Should be 1 in this request thread and 1 in the main thread.',
         ),
-        (_cpwsgi.AppResponse, 1, 1, "Should be 1 in this request thread only."),
+        (_cpwsgi.AppResponse, 1, 1, 'Should be 1 in this request thread only.'),
     ]
 
     @cherrypy.expose
     def index(self):
         """Render the index page HTML content."""
-        return "Hello, world!"
+        return 'Hello, world!'
 
     @cherrypy.expose
     def stats(self):
         """Render garbage collection statistics page HTML content."""
-        output = ["Statistics:"]
+        output = ['Statistics:']
 
         for trial in range(10):
             if request_counter.count > 0:
                 break
             time.sleep(0.5)
         else:
-            output.append("\nNot all requests closed properly.")
+            output.append('\nNot all requests closed properly.')
 
         # gc_collect isn't perfectly synchronous, because it may
         # break reference cycles that then take time to fully
@@ -201,19 +201,19 @@ class GCRoot(object):
         unreachable = gc.collect()
         if unreachable:
             if objgraph is not None:
-                final = objgraph.by_type("Nondestructible")
+                final = objgraph.by_type('Nondestructible')
                 if final:
-                    objgraph.show_backrefs(final, filename="finalizers.png")
+                    objgraph.show_backrefs(final, filename='finalizers.png')
 
             trash = {}
             for x in gc.garbage:
                 trash[type(x)] = trash.get(type(x), 0) + 1
             if trash:
-                output.insert(0, "\n%s unreachable objects:" % unreachable)
+                output.insert(0, '\n%s unreachable objects:' % unreachable)
                 trash = [(v, k) for k, v in trash.items()]
                 trash.sort()
                 for pair in trash:
-                    output.append("    " + repr(pair))
+                    output.append('    ' + repr(pair))
 
         # Check declared classes to verify uncollected instances.
         # These don't have to be part of a cycle; they can be
@@ -229,18 +229,18 @@ class GCRoot(object):
             if lenobj < minobj or lenobj > maxobj:
                 if minobj == maxobj:
                     output.append(
-                        "\nExpected %s %r references, got %s." % (minobj, cls, lenobj)
+                        '\nExpected %s %r references, got %s.' % (minobj, cls, lenobj)
                     )
                 else:
                     output.append(
-                        "\nExpected %s to %s %r references, got %s."
+                        '\nExpected %s to %s %r references, got %s.'
                         % (minobj, maxobj, cls, lenobj)
                     )
 
                 for obj in objs:
                     if objgraph is not None:
                         ig = [id(objs), id(inspect.currentframe())]
-                        fname = "graph_%s_%s.png" % (cls.__name__, id(obj))
+                        fname = 'graph_%s_%s.png' % (cls.__name__, id(obj))
                         objgraph.show_backrefs(
                             obj,
                             extra_ignore=ig,
@@ -250,11 +250,11 @@ class GCRoot(object):
                             extra_info=get_context,
                         )
                     output.append(
-                        "\nReferrers for %s (refcount=%s):"
+                        '\nReferrers for %s (refcount=%s):'
                         % (repr(obj), sys.getrefcount(obj))
                     )
                     t = ReferrerTree(ignore=[objs], maxdepth=3)
                     tree = t.ascend(obj)
                     output.extend(t.format(tree))
 
-        return "\n".join(output)
+        return '\n'.join(output)

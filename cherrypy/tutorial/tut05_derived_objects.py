@@ -16,7 +16,7 @@ class Page:
     """Web page base class."""
 
     # Store the page title in a class attribute
-    title = "Untitled Page"
+    title = 'Untitled Page'
 
     def header(self):
         """Render HTML layout header."""
@@ -47,7 +47,7 @@ class HomePage(Page):
     """Home page app."""
 
     # Different title for this page
-    title = "Tutorial 5"
+    title = 'Tutorial 5'
 
     def __init__(self):
         """Mount another page into the home page app."""
@@ -74,7 +74,7 @@ class HomePage(Page):
 class AnotherPage(Page):
     """Another page app."""
 
-    title = "Another Page"
+    title = 'Another Page'
 
     @cherrypy.expose
     def index(self):
@@ -90,9 +90,9 @@ class AnotherPage(Page):
         )
 
 
-tutconf = os.path.join(os.path.dirname(__file__), "tutorial.conf")
+tutconf = os.path.join(os.path.dirname(__file__), 'tutorial.conf')
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     # CherryPy always starts with app.root when trying to map request URIs
     # to objects, so we need to mount a request handler root. A request
     # to '/' will be mapped to HelloWorld().index().

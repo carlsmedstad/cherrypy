@@ -95,7 +95,7 @@ _startup_cwd = os.getcwd()
 class ChannelFailures(Exception):
     """Exception raised during errors on Bus.publish()."""
 
-    delimiter = "\n"
+    delimiter = '\n'
 
     def __init__(self, *args, **kwargs):
         """Initialize ChannelFailures errors wrapper."""
@@ -132,7 +132,7 @@ class _StateEnum(object):
         name = None
 
         def __repr__(self):
-            return "states.%s" % self.name
+            return 'states.%s' % self.name
 
     def __setattr__(self, key, value):
         if isinstance(value, self.State):
@@ -154,7 +154,7 @@ except ImportError:
     max_files = 0
 else:
     try:
-        max_files = os.sysconf("SC_OPEN_MAX")
+        max_files = os.sysconf('SC_OPEN_MAX')
     except AttributeError:
         max_files = 1024
 
@@ -178,7 +178,7 @@ class Bus(object):
         """Initialize pub/sub bus."""
         self.execv = False
         self.state = states.STOPPED
-        channels = "start", "stop", "exit", "graceful", "log", "main"
+        channels = 'start', 'stop', 'exit', 'graceful', 'log', 'main'
         self.listeners = dict((channel, set()) for channel in channels)
         self._priorities = {}
 
@@ -199,7 +199,7 @@ class Bus(object):
         ch_listeners.add(callback)
 
         if priority is None:
-            priority = getattr(callback, "priority", 50)
+            priority = getattr(callback, 'priority', 50)
         self._priorities[(channel, callback)] = priority
 
     def unsubscribe(self, channel, callback):
@@ -235,12 +235,12 @@ class Bus(object):
                 raise
             except Exception:
                 exc.handle_exception()
-                if channel == "log":
+                if channel == 'log':
                     # Assume any further messages to 'log' will fail.
                     pass
                 else:
                     self.log(
-                        "Error in %r listener %r" % (channel, listener),
+                        'Error in %r listener %r' % (channel, listener),
                         level=40,
                         traceback=True,
                     )
@@ -252,10 +252,10 @@ class Bus(object):
         """Assert that the Bus is not running in atexit handler callback."""
         if self.state != states.EXITING:
             warnings.warn(
-                "The main thread is exiting, but the Bus is in the %r state; "
-                "shutting it down automatically now. You must either call "
-                "bus.block() after start(), or call bus.exit() before the "
-                "main thread exits." % self.state,
+                'The main thread is exiting, but the Bus is in the %r state; '
+                'shutting it down automatically now. You must either call '
+                'bus.block() after start(), or call bus.exit() before the '
+                'main thread exits.' % self.state,
                 RuntimeWarning,
             )
             self.exit()
@@ -265,16 +265,16 @@ class Bus(object):
         atexit.register(self._clean_exit)
 
         self.state = states.STARTING
-        self.log("Bus STARTING")
+        self.log('Bus STARTING')
         try:
-            self.publish("start")
+            self.publish('start')
             self.state = states.STARTED
-            self.log("Bus STARTED")
+            self.log('Bus STARTED')
         except (KeyboardInterrupt, SystemExit):
             raise
         except Exception:
             self.log(
-                "Shutting down due to error in start listener:",
+                'Shutting down due to error in start listener:',
                 level=40,
                 traceback=True,
             )
@@ -295,11 +295,11 @@ class Bus(object):
             self.stop()
 
             self.state = states.EXITING
-            self.log("Bus EXITING")
-            self.publish("exit")
+            self.log('Bus EXITING')
+            self.publish('exit')
             # This isn't strictly necessary, but it's better than seeing
             # "Waiting for child threads to terminate..." and then nothing.
-            self.log("Bus EXITED")
+            self.log('Bus EXITED')
         except Exception:
             # This method is often called asynchronously (whether thread,
             # signal handler, console handler, or atexit handler), so we
@@ -326,8 +326,8 @@ class Bus(object):
 
     def graceful(self):
         """Advise all services to reload."""
-        self.log("Bus graceful")
-        self.publish("graceful")
+        self.log('Bus graceful')
+        self.publish('graceful')
 
     def block(self, interval=0.1):
         """Wait for the EXITING state, KeyboardInterrupt or SystemExit.
@@ -340,14 +340,14 @@ class Bus(object):
         some platforms).
         """
         try:
-            self.wait(states.EXITING, interval=interval, channel="main")
+            self.wait(states.EXITING, interval=interval, channel='main')
         except (KeyboardInterrupt, IOError):
             # The time.sleep call might raise
             # "IOError: [Errno 4] Interrupted function call" on KBInt.
-            self.log("Keyboard Interrupt: shutting down bus")
+            self.log('Keyboard Interrupt: shutting down bus')
             self.exit()
         except SystemExit:
-            self.log("SystemExit raised: shutting down bus")
+            self.log('SystemExit raised: shutting down bus')
             self.exit()
             raise
 
@@ -356,7 +356,7 @@ class Bus(object):
         # It's also good to let them all shut down before allowing
         # the main thread to call atexit handlers.
         # See https://github.com/cherrypy/cherrypy/issues/751.
-        self.log("Waiting for child threads to terminate...")
+        self.log('Waiting for child threads to terminate...')
         for t in threading.enumerate():
             # Validate the we're not trying to join the MainThread
             # that will cause a deadlock and the case exist when
@@ -370,7 +370,7 @@ class Bus(object):
                 # always daemonic.
                 not t.daemon
             ):
-                self.log("Waiting for thread %s." % t.name)
+                self.log('Waiting for thread %s.' % t.name)
                 t.join()
 
         if self.execv:
@@ -397,16 +397,16 @@ class Bus(object):
             """It's probably win32 or GAE."""
             args = [sys.executable] + self._get_interpreter_argv() + sys.argv
 
-        self.log("Re-spawning %s" % " ".join(args))
+        self.log('Re-spawning %s' % ' '.join(args))
 
         self._extend_pythonpath(os.environ)
 
-        if sys.platform[:4] == "java":
+        if sys.platform[:4] == 'java':
             from _systemrestart import SystemRestart
 
             raise SystemRestart
         else:
-            if sys.platform == "win32":
+            if sys.platform == 'win32':
                 args = ['"%s"' % arg for arg in args]
 
             os.chdir(_startup_cwd)
@@ -430,7 +430,7 @@ class Bus(object):
         """
         return (
             []
-            if getattr(sys, "frozen", False)
+            if getattr(sys, 'frozen', False)
             else subprocess._args_from_interpreter_flags()
         )
 
@@ -466,8 +466,8 @@ class Bus(object):
             argv_len, is_command, is_module = len(_argv), False, False
 
             try:
-                m_ind = _argv.index("-m")
-                if m_ind < argv_len - 1 and _argv[m_ind + 1] in ("-c", "-m"):
+                m_ind = _argv.index('-m')
+                if m_ind < argv_len - 1 and _argv[m_ind + 1] in ('-c', '-m'):
                     """
                     In some older Python versions `-m`'s argument may be
                     substituted with `-c`, not `-m`
@@ -477,8 +477,8 @@ class Bus(object):
                 m_ind = None
 
             try:
-                c_ind = _argv.index("-c")
-                if c_ind < argv_len - 1 and _argv[c_ind + 1] == "-c":
+                c_ind = _argv.index('-c')
+                if c_ind < argv_len - 1 and _argv[c_ind + 1] == '-c':
                     is_command = True
             except (IndexError, ValueError):
                 c_ind = None
@@ -489,7 +489,7 @@ class Bus(object):
                     """There's `-c -c` before `-m`"""
                     raise RuntimeError(
                         "Cannot reconstruct command from '-c'. Ref: "
-                        "https://github.com/cherrypy/cherrypy/issues/1545"
+                        'https://github.com/cherrypy/cherrypy/issues/1545'
                     )
                 # Survive module argument here
                 original_module = sys.argv[0]
@@ -497,7 +497,7 @@ class Bus(object):
                     """There's no such module exist."""
                     raise AttributeError(
                         "{} doesn't seem to be a module "
-                        "accessible by current user".format(original_module)
+                        'accessible by current user'.format(original_module)
                     )
                 del _argv[m_ind : m_ind + 2]  # remove `-m -m`
                 # ... and substitute it with the original module path:
@@ -506,7 +506,7 @@ class Bus(object):
                 """It's containing just `-c -c` sequence of arguments."""
                 raise RuntimeError(
                     "Cannot reconstruct command from '-c'. "
-                    "Ref: https://github.com/cherrypy/cherrypy/issues/1545"
+                    'Ref: https://github.com/cherrypy/cherrypy/issues/1545'
                 )
         except AttributeError:
             """It looks Py_GetArgcArgv's completely absent in some environments
@@ -537,12 +537,12 @@ class Bus(object):
 
         (This idea filched from tornado.autoreload)
         """
-        path_prefix = "." + os.pathsep
-        existing_path = env.get("PYTHONPATH", "")
-        needs_patch = sys.path[0] == "" and not existing_path.startswith(path_prefix)
+        path_prefix = '.' + os.pathsep
+        existing_path = env.get('PYTHONPATH', '')
+        needs_patch = sys.path[0] == '' and not existing_path.startswith(path_prefix)
 
         if needs_patch:
-            env["PYTHONPATH"] = path_prefix + existing_path
+            env['PYTHONPATH'] = path_prefix + existing_path
 
     def _set_cloexec(self):
         """Set the CLOEXEC flag on all open files (except stdin/out/err).
@@ -565,10 +565,10 @@ class Bus(object):
     def stop(self):
         """Stop all services."""
         self.state = states.STOPPING
-        self.log("Bus STOPPING")
-        self.publish("stop")
+        self.log('Bus STOPPING')
+        self.publish('stop')
         self.state = states.STOPPED
-        self.log("Bus STOPPED")
+        self.log('Bus STOPPED')
 
     def start_with_callback(self, func, args=None, kwargs=None):
         """Start 'func' in a new thread T, then start self (and return T)."""
@@ -583,21 +583,21 @@ class Bus(object):
             func(*a, **kw)
 
         t = threading.Thread(target=_callback, args=args, kwargs=kwargs)
-        t.name = "Bus Callback " + t.name
+        t.name = 'Bus Callback ' + t.name
         t.start()
 
         self.start()
 
         return t
 
-    def log(self, msg="", level=20, traceback=False):
+    def log(self, msg='', level=20, traceback=False):
         """Log the given message.
 
         Append the last traceback if requested.
         """
         if traceback:
-            msg += "\n" + "".join(_traceback.format_exception(*sys.exc_info()))
-        self.publish("log", msg, level)
+            msg += '\n' + ''.join(_traceback.format_exception(*sys.exc_info()))
+        self.publish('log', msg, level)
 
 
 bus = Bus()

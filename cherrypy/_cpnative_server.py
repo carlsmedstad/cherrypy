@@ -24,19 +24,19 @@ class NativeGateway(cheroot.server.Gateway):
             # Obtain a Request object from CherryPy
             local = req.server.bind_addr  # FIXME: handle UNIX sockets
             local = tonative(local[0]), local[1]
-            local = httputil.Host(local[0], local[1], "")
+            local = httputil.Host(local[0], local[1], '')
             remote = tonative(req.conn.remote_addr), req.conn.remote_port
-            remote = httputil.Host(remote[0], remote[1], "")
+            remote = httputil.Host(remote[0], remote[1], '')
 
             scheme = tonative(req.scheme)
-            sn = cherrypy.tree.script_name(tonative(req.uri or "/"))
+            sn = cherrypy.tree.script_name(tonative(req.uri or '/'))
             if sn is None:
-                self.send_response("404 Not Found", [], [""])
+                self.send_response('404 Not Found', [], [''])
             else:
                 app = cherrypy.tree.apps[sn]
                 method = tonative(req.method)
                 path = tonative(req.path)
-                qs = tonative(req.qs or "")
+                qs = tonative(req.qs or '')
                 headers = ((tonative(h), tonative(v)) for h, v in req.inheaders.items())
                 rfile = req.rfile
                 prev = None
@@ -45,7 +45,7 @@ class NativeGateway(cheroot.server.Gateway):
                     redirections = []
                     while True:
                         request, response = app.get_serving(
-                            local, remote, scheme, "HTTP/1.1"
+                            local, remote, scheme, 'HTTP/1.1'
                         )
                         request.multithread = True
                         request.multiprocess = False
@@ -72,18 +72,18 @@ class NativeGateway(cheroot.server.Gateway):
                             if not self.recursive:
                                 if ir.path in redirections:
                                     raise RuntimeError(
-                                        "InternalRedirector visited the same "
-                                        "URL twice: %r" % ir.path
+                                        'InternalRedirector visited the same '
+                                        'URL twice: %r' % ir.path
                                     )
                                 else:
                                     # Add the *previous* path_info + qs to
                                     # redirections.
                                     if qs:
-                                        qs = "?" + qs
+                                        qs = '?' + qs
                                     redirections.append(sn + path + qs)
 
                             # Munge environment and try again.
-                            method = "GET"
+                            method = 'GET'
                             path = ir.path
                             qs = ir.query_string
                             rfile = io.BytesIO()
@@ -96,7 +96,7 @@ class NativeGateway(cheroot.server.Gateway):
         except Exception:
             tb = format_exc()
             # print tb
-            cherrypy.log(tb, "NATIVE_ADAPTER", severity=logging.ERROR)
+            cherrypy.log(tb, 'NATIVE_ADAPTER', severity=logging.ERROR)
             s, h, b = bare_error()
             self.send_response(s, h, b)
 
@@ -105,7 +105,7 @@ class NativeGateway(cheroot.server.Gateway):
         req = self.req
 
         # Set response status
-        req.status = status or b"500 Server Error"
+        req.status = status or b'500 Server Error'
 
         # Set response headers
         for header, value in headers:
@@ -153,7 +153,7 @@ class CPHTTPServer(cheroot.server.HTTPServer):
         self.protocol = self.server_adapter.protocol_version
         self.nodelay = self.server_adapter.nodelay
 
-        ssl_module = self.server_adapter.ssl_module or "pyopenssl"
+        ssl_module = self.server_adapter.ssl_module or 'pyopenssl'
         if self.server_adapter.ssl_context:
             adapter_class = cheroot.server.get_ssl_adapter_class(ssl_module)
             self.ssl_adapter = adapter_class(

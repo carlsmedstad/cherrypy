@@ -53,5 +53,5 @@ class LockChecker(object):
     def expired(self):
         """Check whether the lock checker has expired."""
         if self.timer.expired():
-            raise LockTimeout("Timeout acquiring lock for %(session_id)s" % vars(self))
+            raise LockTimeout('Timeout acquiring lock for %(session_id)s' % vars(self))
         return False

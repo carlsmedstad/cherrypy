@@ -14,4 +14,4 @@ from cheroot.test.webtest import (  # noqa
 )
 
 
-warnings.warn("Use cheroot.test.webtest", DeprecationWarning)
+warnings.warn('Use cheroot.test.webtest', DeprecationWarning)

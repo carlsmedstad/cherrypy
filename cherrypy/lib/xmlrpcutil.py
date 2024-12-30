@@ -16,14 +16,14 @@ def process_body():
     try:
         return xmlrpc_loads(cherrypy.request.body.read())
     except Exception:
-        return ("ERROR PARAMS",), "ERRORMETHOD"
+        return ('ERROR PARAMS',), 'ERRORMETHOD'
 
 
 def patched_path(path):
     """Return 'path', doctored for RPC."""
-    if not path.endswith("/"):
-        path += "/"
-    if path.startswith("/RPC2/"):
+    if not path.endswith('/'):
+        path += '/'
+    if path.startswith('/RPC2/'):
         # strip the first /rpc2
         path = path[5:]
     return path
@@ -36,13 +36,13 @@ def _set_response(body):
     # Since Python's xmlrpc_client interprets a non-200 response
     # as a "Protocol Error", we'll just return 200 every time.
     response = cherrypy.response
-    response.status = "200 OK"
-    response.body = ntob(body, "utf-8")
-    response.headers["Content-Type"] = "text/xml"
-    response.headers["Content-Length"] = len(body)
+    response.status = '200 OK'
+    response.body = ntob(body, 'utf-8')
+    response.headers['Content-Type'] = 'text/xml'
+    response.headers['Content-Length'] = len(body)
 
 
-def respond(body, encoding="utf-8", allow_none=0):
+def respond(body, encoding='utf-8', allow_none=0):
     """Construct HTTP response body."""
     if not isinstance(body, XMLRPCFault):
         body = (body,)

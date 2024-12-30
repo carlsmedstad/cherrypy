@@ -17,10 +17,10 @@ import pytest
 
 @pytest.fixture(
     params=[
-        "favicon.ico",
-        "scaffold/static/made_with_cherrypy_small.png",
-        "tutorial/tutorial.conf",
-        "tutorial/custom_error.html",
+        'favicon.ico',
+        'scaffold/static/made_with_cherrypy_small.png',
+        'tutorial/tutorial.conf',
+        'tutorial/custom_error.html',
     ]
 )
 def data_file_path(request):
@@ -28,7 +28,7 @@ def data_file_path(request):
     return request.param
 
 
-@pytest.fixture(autouse=True, scope="session")
+@pytest.fixture(autouse=True, scope='session')
 def remove_paths_to_checkout():
     """Remove paths to ``./cherrypy``."""
     to_remove = [
@@ -36,9 +36,9 @@ def remove_paths_to_checkout():
         for path in sys.path
         if os.path.isdir(path) and os.path.samefile(path, os.path.curdir)
     ]
-    print("Removing", to_remove)
+    print('Removing', to_remove)
     list(map(sys.path.remove, to_remove))
-    assert "cherrypy" not in sys.modules
+    assert 'cherrypy' not in sys.modules
 
 
 def test_data_files_installed(data_file_path):
@@ -49,10 +49,10 @@ def test_data_files_installed(data_file_path):
     fn = os.path.join(root, data_file_path)
     assert os.path.exists(fn), fn
     # make sure the file isn't in the local checkout
-    assert not os.path.samefile(fn, os.path.join("cherrypy", data_file_path))
+    assert not os.path.samefile(fn, os.path.join('cherrypy', data_file_path))
 
 
 def test_sanity():
     """Test the test to show that it does fail when a file is missing."""
     with pytest.raises(Exception):
-        test_data_files_installed("does not exist")
+        test_data_files_installed('does not exist')

@@ -41,7 +41,7 @@ class CPWSGIServer(cheroot.wsgi.Server):
     cherrypy.server -> wsgi.Server.
     """
 
-    fmt = "CherryPy/{cherrypy.__version__} {cheroot.wsgi.Server.version}"
+    fmt = 'CherryPy/{cherrypy.__version__} {cheroot.wsgi.Server.version}'
     version = fmt.format(**globals())
 
     def __init__(self, server_adapter=cherrypy.server):
@@ -80,9 +80,9 @@ class CPWSGIServer(cheroot.wsgi.Server):
         self.nodelay = self.server_adapter.nodelay
 
         if sys.version_info >= (3, 0):
-            ssl_module = self.server_adapter.ssl_module or "builtin"
+            ssl_module = self.server_adapter.ssl_module or 'builtin'
         else:
-            ssl_module = self.server_adapter.ssl_module or "pyopenssl"
+            ssl_module = self.server_adapter.ssl_module or 'pyopenssl'
         if self.server_adapter.ssl_context:
             adapter_class = cheroot.server.get_ssl_adapter_class(ssl_module)
             self.ssl_adapter = adapter_class(
@@ -101,8 +101,8 @@ class CPWSGIServer(cheroot.wsgi.Server):
                 self.server_adapter.ssl_ciphers,
             )
 
-        self.stats["Enabled"] = getattr(self.server_adapter, "statistics", False)
+        self.stats['Enabled'] = getattr(self.server_adapter, 'statistics', False)
 
-    def error_log(self, msg="", level=20, traceback=False):
+    def error_log(self, msg='', level=20, traceback=False):
         """Write given message to the error log."""
         cherrypy.engine.log(msg, level, traceback)
